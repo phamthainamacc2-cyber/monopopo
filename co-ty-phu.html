@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a0a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tỷ Phú">
+  <title>Cờ Tỷ Phú Online</title>
+  
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #1a0a2e; }
+body { font-family: 'Nunito', sans-serif; touch-action: manipulation; }
+
+/* ===== CSS VARIABLES ===== */
+:root {
+  --gold: #f5c518;
+  --gold2: #ffd700;
+  --orange: #ff8c00;
+  --blue: #1565c0;
+  --blue-light: #42a5f5;
+  --green: #2e7d32;
+  --green-light: #66bb6a;
+  --red: #c62828;
+  --purple: #6a1b9a;
+  --teal: #00695c;
+  --bg-dark: #1a0a2e;
+  --bg-modal: rgba(255,165,0,0.97);
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --radius: 20px;
+}
+
+/* ===== SCREENS ===== */
+#app { width: 100%; height: 100%; position: relative; }
+.screen { position: absolute; inset: 0; display: none; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ===== MAIN MENU ===== */
+#screen-menu {
+  background: linear-gradient(180deg, #87ceeb 0%, #b0e0ff 40%, #7cfc00 70%, #228b22 100%);
+  position: relative; overflow: hidden;
+}
+.menu-bg { position: absolute; inset: 0; pointer-events: none; }
+
+/* Sky & clouds */
+.clouds { position: absolute; top: 0; width: 100%; }
+.cloud { position: absolute; background: white; border-radius: 50px; opacity: 0.85; }
+.cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
+.c1 { width: 120px; height: 40px; top: 8%; left: -130px; animation: cloudMove 20s linear infinite; }
+.c1::before { width: 70px; height: 60px; top: -30px; left: 20px; }
+.c2 { width: 90px; height: 30px; top: 18%; left: -100px; animation: cloudMove 28s linear infinite 6s; }
+.c2::before { width: 50px; height: 45px; top: -22px; left: 15px; }
+.c3 { width: 150px; height: 50px; top: 5%; left: -160px; animation: cloudMove 35s linear infinite 12s; }
+.c3::before { width: 80px; height: 70px; top: -35px; left: 25px; }
+@keyframes cloudMove { from { left: -200px; } to { left: 110%; } }
+
+/* City */
+.city-skyline {
+  position: absolute; bottom: 25%; left: 0; right: 0; height: 180px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180'%3E%3Crect x='0' y='60' width='60' height='120' fill='%2342a5f5' rx='4'/%3E%3Crect x='10' y='40' width='40' height='20' fill='%2342a5f5' rx='2'/%3E%3Crect x='70' y='30' width='80' height='150' fill='%231565c0' rx='4'/%3E%3Crect x='80' y='10' width='60' height='25' fill='%231565c0' rx='2'/%3E%3Crect x='160' y='70' width='50' height='110' fill='%2390caf9' rx='4'/%3E%3Crect x='220' y='20' width='70' height='160' fill='%231976d2' rx='4'/%3E%3Crect x='300' y='50' width='55' height='130' fill='%2342a5f5' rx='4'/%3E%3Crect x='365' y='80' width='45' height='100' fill='%231565c0' rx='4'/%3E%3Crect x='420' y='35' width='75' height='145' fill='%231976d2' rx='4'/%3E%3Crect x='505' y='60' width='55' height='120' fill='%2390caf9' rx='4'/%3E%3Crect x='570' y='25' width='65' height='155' fill='%2342a5f5' rx='4'/%3E%3Crect x='645' y='55' width='55' height='125' fill='%231565c0' rx='4'/%3E%3Crect x='710' y='70' width='90' height='110' fill='%231976d2' rx='4'/%3E%3C/svg%3E") center bottom no-repeat;
+  background-size: cover;
+}
+.road {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 26%;
+  background: linear-gradient(180deg, #555 0%, #444 100%);
+}
+.road::before {
+  content: ''; position: absolute; top: 40%; left: 0; right: 0; height: 6px;
+  background: repeating-linear-gradient(90deg, #fff 0, #fff 60px, transparent 60px, transparent 120px);
+  opacity: 0.5;
+}
+
+/* Floating coins in menu */
+.floating-coins { position: absolute; inset: 0; pointer-events: none; }
+.fc { position: absolute; font-size: 1.5rem; animation: floatCoin 4s ease-in-out infinite; opacity: 0; }
+@keyframes floatCoin {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+}
+
+/* Logo */
+.menu-content { position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px; }
+.logo-wrap { animation: logoBounce 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes logoBounce { from { transform: translateY(-60px) scale(0.5); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+.logo-badge {
+  background: linear-gradient(135deg, #8b6914 0%, #d4a017 40%, #f5c518 60%, #8b6914 100%);
+  border: 4px solid #f5c518;
+  border-radius: 20px;
+  padding: 16px 32px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(245,197,24,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+  position: relative;
+}
+.logo-vehicles { display: flex; justify-content: space-between; font-size: 1.8rem; margin-bottom: 4px; }
+.logo-truck { transform: scaleX(-1); }
+.logo-plane { animation: planeFly 3s ease-in-out infinite; }
+.logo-ship { }
+@keyframes planeFly { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.logo-title { font-family: 'Lilita One', cursive; font-size: 2.4rem; color: #1a0a2e; text-shadow: 0 2px 0 rgba(255,255,255,0.3); letter-spacing: 2px; line-height: 1; }
+.logo-sub { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem; color: #1a0a2e; letter-spacing: 6px; }
+
+/* Menu buttons */
+.menu-buttons { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px; animation: fadeInUp 0.6s ease 0.3s both; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.btn-menu {
+  width: 100%; padding: 16px 24px;
+  border: none; border-radius: 50px; cursor: pointer;
+  font-family: 'Lilita One', cursive; font-size: 1.3rem; letter-spacing: 2px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  transition: all 0.15s; position: relative; overflow: hidden;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.4), 0 10px 20px rgba(0,0,0,0.2);
+}
+.btn-menu:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+.btn-menu::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 60%); border-radius: inherit; }
+.btn-play { background: linear-gradient(180deg, #4a90e2 0%, #1565c0 100%); color: white; }
+.btn-settings { background: linear-gradient(180deg, #8e44ad 0%, #5b2c6f 100%); color: white; }
+.btn-rules { background: linear-gradient(180deg, #27ae60 0%, #1a7a42 100%); color: white; }
+.btn-icon { font-size: 1rem; }
+
+/* Menu bottom */
+.menu-bottom { display: flex; gap: 16px; }
+.btn-icon-sm {
+  width: 52px; height: 52px; border-radius: 14px; border: 3px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.25); color: white; font-size: 1.4rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.btn-fav { margin-left: auto; }
+
+/* ===== MODAL STYLES ===== */
+.modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-box {
+  background: linear-gradient(180deg, #ffb300 0%, #ff8c00 100%);
+  border-radius: 24px; width: 100%; max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 3px #f5c518;
+  overflow: hidden; display: flex; flex-direction: column;
+  animation: modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-tall { max-height: 85vh; }
+@keyframes modalPop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-header {
+  background: linear-gradient(90deg, #9c27b0, #7b1fa2);
+  color: white; font-family: 'Lilita One', cursive; font-size: 1.3rem;
+  text-align: center; padding: 16px; letter-spacing: 3px;
+}
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; gap: 12px; padding: 16px; background: rgba(0,0,0,0.1); }
+
+/* Player list */
+#players-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.player-item {
+  background: rgba(101,67,33,0.8); border-radius: 14px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px; color: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
+.player-avatar { width: 38px; height: 38px; border-radius: 50%; background: #f5c518; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.player-name { flex: 1; font-weight: 700; font-size: 1rem; }
+.player-type { font-size: 0.75rem; opacity: 0.7; }
+.player-remove { background: #c62828; border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+
+/* Add player buttons */
+.section-label { font-family: 'Lilita One', cursive; color: #1a0a2e; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 10px; text-align: center; }
+.add-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.add-btn {
+  background: rgba(101,67,33,0.8); border: none; border-radius: 14px; padding: 14px 10px;
+  color: white; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem;
+  display: flex; align-items: center; gap: 8px;
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+}
+.add-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+.add-icon { font-size: 1.5rem; }
+.btn-human { background: rgba(21,101,192,0.8); }
+.btn-easy { background: rgba(46,125,50,0.8); }
+.btn-medium { background: rgba(245,127,23,0.85); }
+.btn-hard { background: rgba(198,40,40,0.8); }
+
+/* Params */
+.param-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.param-card {
+  background: #4dd0e1; border-radius: 16px; padding: 16px;
+  cursor: pointer; border: 4px solid transparent; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.param-card.selected { border-color: #c62828; box-shadow: 0 4px 20px rgba(198,40,40,0.4); }
+.param-card h3 { font-family: 'Lilita One', cursive; font-size: 1.3rem; color: #1a0a2e; margin-bottom: 8px; }
+.param-details p { font-size: 0.78rem; color: #1a0a2e; margin-bottom: 3px; }
+.param-details b { color: #1a0a2e; }
+.dice-row { display: flex; gap: 16px; justify-content: center; }
+.dice-btn {
+  width: 64px; height: 64px; border-radius: 16px; border: 4px solid transparent;
+  background: #4dd0e1; color: #1a0a2e; font-family: 'Lilita One', cursive;
+  font-size: 1.8rem; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.dice-btn.selected { border-color: #1565c0; background: #1565c0; color: white; box-shadow: 0 4px 20px rgba(21,101,192,0.5); }
+
+/* Footer buttons */
+.btn-back {
+  flex: 1; padding: 14px; border: none; border-radius: 50px;
+  background: linear-gradient(180deg, #e53935, #b71c1c); color: white;
+  font-family: 'Lilita One', cursive; font-size: 1rem; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+}
+.btn-next, .btn-play-start {
+  flex: 1; padding: 14px; border: none; border-radius: 50px;
+  background: linear-gradient(180deg, #43a047, #1b5e20); color: white;
+  font-family: 'Lilita One', cursive; font-size: 1rem; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+}
+.btn-back:active, .btn-next:active, .btn-play-start:active { transform: translateY(2px); }
+
+/* Settings */
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,0.1); font-weight: 700; font-size: 1rem; color: #1a0a2e; }
+.toggle { position: relative; width: 52px; height: 28px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 34px; cursor: pointer; transition: 0.3s; }
+.toggle-slider::before { content: ''; position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+.toggle input:checked + .toggle-slider { background: #43a047; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(24px); }
+.setting-select { padding: 6px 12px; border-radius: 10px; border: 2px solid rgba(0,0,0,0.2); background: white; font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; }
+
+/* Rules */
+.rules-body { display: flex; flex-direction: column; gap: 12px; }
+.rule-item { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.4); border-radius: 12px; padding: 12px; }
+.rule-icon { font-size: 1.6rem; flex-shrink: 0; }
+.rule-item b { display: block; font-size: 0.95rem; color: #1a0a2e; margin-bottom: 2px; }
+.rule-item p { font-size: 0.82rem; color: #333; }
+
+/* ===== GAME SCREEN ===== */
+#screen-game { background: #1a3a5c; display: flex !important; }
+#game-container { display: flex; flex-direction: row; width: 100%; height: 100%; overflow: hidden; }
+
+/* Board */
+#board-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 8px; overflow: hidden;
+}
+#board {
+  position: relative;
+  width: min(70vw, 70vh, 540px);
+  height: min(70vw, 70vh, 540px);
+  background: #e8f5e9;
+  border-radius: 8px;
+  box-shadow: 0 0 0 4px #388e3c, 0 0 0 8px #1b5e20, 0 20px 60px rgba(0,0,0,0.6);
+}
+#board-cells { position: absolute; inset: 0; }
+
+/* Board cell sizing */
+.board-cell {
+  position: absolute;
+  background: white;
+  border: 1px solid #aaa;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden;
+  cursor: pointer; transition: filter 0.2s;
+  font-size: clamp(5px, 1.2vw, 10px);
+}
+.board-cell:hover { filter: brightness(0.9); }
+.cell-name { font-weight: 800; font-size: 0.7em; line-height: 1.1; padding: 1px; word-break: break-word; }
+.cell-price { font-size: 0.65em; font-weight: 700; color: #333; }
+.cell-color-bar { width: 100%; height: 22%; flex-shrink: 0; }
+.cell-icon { font-size: 1.1em; line-height: 1; }
+.cell-buildings { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
+.cell-house { font-size: 0.6em; }
+
+/* Corner cells */
+.corner-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Center */
+#board-center {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 60%; height: 60%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+}
+.center-logo {
+  font-family: 'Lilita One', cursive; color: #1b5e20;
+  font-size: clamp(14px, 3vw, 24px); text-align: center; line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Dice */
+.dice-area { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+#dice-container { display: flex; gap: 8px; }
+.die {
+  width: clamp(28px, 5vw, 44px); height: clamp(28px, 5vw, 44px);
+  background: linear-gradient(135deg, #fff, #eee);
+  border-radius: 8px; border: 2px solid #333;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+  transition: transform 0.1s;
+}
+.die.rolling { animation: diceRoll 0.6s ease; }
+@keyframes diceRoll {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(180deg) scale(1.2); }
+  50% { transform: rotate(360deg) scale(0.8); }
+  75% { transform: rotate(540deg) scale(1.1); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+.die-face { font-size: clamp(14px, 3vw, 24px); line-height: 1; }
+
+/* Action buttons */
+.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.btn-action {
+  padding: 5px 4px; border: none; border-radius: 8px;
+  background: linear-gradient(180deg, #1976d2, #0d47a1); color: white;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: clamp(7px, 1.5vw, 11px);
+  cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.4);
+  transition: transform 0.1s;
+}
+.btn-action:active { transform: translateY(2px); }
+.btn-roll-game {
+  padding: 8px 20px; border: none; border-radius: 50px;
+  background: linear-gradient(180deg, #f44336, #b71c1c); color: white;
+  font-family: 'Lilita One', cursive; font-size: clamp(10px, 2vw, 16px); letter-spacing: 2px;
+  cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+  transition: all 0.1s;
+}
+.btn-roll-game:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+.btn-roll-game:disabled { background: #78909c; cursor: not-allowed; }
+
+/* Coins animation */
+.coins-anim { position: absolute; pointer-events: none; inset: -20px; }
+.coin-fly { position: absolute; font-size: 1.2em; animation: coinFly 1.5s ease-out forwards; }
+@keyframes coinFly {
+  0% { transform: translate(0,0) rotate(0deg) scale(0); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0.3); opacity: 0; }
+}
+
+/* Plane animation */
+.plane-wrap { position: absolute; inset: 0; pointer-events: none; }
+.plane-anim {
+  position: absolute; font-size: clamp(20px, 4vw, 36px);
+  animation: planePath 8s linear infinite;
+  top: 20%; left: -10%;
+}
+@keyframes planePath {
+  0% { top: 30%; left: -10%; transform: rotate(-10deg); }
+  50% { top: 10%; left: 110%; transform: rotate(-10deg); }
+  51% { left: -10%; top: 70%; }
+  100% { top: 70%; left: 110%; transform: rotate(-10deg); }
+}
+
+/* Player tokens */
+#players-tokens { position: absolute; inset: 0; pointer-events: none; }
+.player-token {
+  position: absolute; width: clamp(18px, 3.5vw, 28px); height: clamp(18px, 3.5vw, 28px);
+  border-radius: 50%; border: 2px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(9px, 1.8vw, 14px);
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.player-token.active { box-shadow: 0 0 0 3px #f5c518, 0 4px 12px rgba(0,0,0,0.5); }
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: 220px; min-width: 180px; background: linear-gradient(180deg, #1a237e, #0d1b6e);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: rgba(0,0,0,0.3);
+}
+.btn-pause { background: none; border: 2px solid rgba(255,255,255,0.5); color: white; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; }
+.turn-indicator { color: rgba(255,255,255,0.8); font-size: 0.72rem; }
+.turn-indicator b { color: #ffd700; }
+
+#score-board { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.score-item {
+  background: rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 10px;
+  display: flex; align-items: center; gap: 8px; border-left: 3px solid transparent;
+  transition: all 0.3s;
+}
+.score-item.active-player { background: rgba(255,215,0,0.2); border-left-color: #ffd700; }
+.score-item.bankrupt { opacity: 0.4; text-decoration: line-through; }
+.score-avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+.score-info { flex: 1; min-width: 0; }
+.score-name { color: white; font-weight: 700; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.score-money { color: #66bb6a; font-weight: 800; font-size: 0.8rem; }
+.score-jail { color: #ff7043; font-size: 0.65rem; }
+
+#history-box { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 8px; }
+.history-title { color: #ffd700; font-family: 'Lilita One', cursive; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 6px; }
+#history-log { flex: 1; overflow-y: auto; font-size: 0.68rem; color: rgba(255,255,255,0.75); display: flex; flex-direction: column; gap: 3px; }
+#history-log::-webkit-scrollbar { width: 4px; }
+#history-log::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.log-entry { padding: 3px 6px; border-radius: 6px; background: rgba(255,255,255,0.05); line-height: 1.3; }
+.log-entry.log-buy { border-left: 2px solid #66bb6a; }
+.log-entry.log-rent { border-left: 2px solid #ef9a9a; }
+.log-entry.log-start { border-left: 2px solid #ffd700; color: #ffd700; font-weight: 700; }
+.log-entry.log-chance { border-left: 2px solid #ce93d8; }
+.log-entry.log-jail { border-left: 2px solid #ff7043; }
+.log-entry.log-build { border-left: 2px solid #4fc3f7; }
+
+/* ===== GAME MODALS ===== */
+.game-modal { position: absolute; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.game-modal.hidden { display: none; }
+.gm-box {
+  background: linear-gradient(180deg, #ffb300, #ff8c00);
+  border-radius: 24px; width: 100%; max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 3px #f5c518;
+  animation: modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+.gm-header { background: linear-gradient(90deg, #9c27b0, #7b1fa2); color: white; font-family: 'Lilita One', cursive; font-size: 1.1rem; text-align: center; padding: 14px; letter-spacing: 2px; }
+.gm-body { padding: 20px; }
+.gm-footer { display: flex; gap: 10px; padding: 14px; background: rgba(0,0,0,0.1); }
+.gm-footer .btn-decline { flex: 1; padding: 12px; border: none; border-radius: 50px; background: linear-gradient(180deg, #e53935, #b71c1c); color: white; font-family: 'Lilita One', cursive; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
+.gm-footer .btn-confirm { flex: 1; padding: 12px; border: none; border-radius: 50px; background: linear-gradient(180deg, #43a047, #1b5e20); color: white; font-family: 'Lilita One', cursive; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
+
+.property-preview { width: 80px; height: 80px; border-radius: 12px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.price-tag { font-family: 'Lilita One', cursive; font-size: 1.6rem; color: #1b5e20; text-align: center; margin-top: 8px; }
+.rent-tag { color: #b71c1c; }
+.chance-card { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 16px; text-align: center; font-weight: 700; font-size: 0.95rem; color: #1a0a2e; line-height: 1.5; }
+#buy-desc, #rent-desc, #jail-desc { text-align: center; font-weight: 700; color: #1a0a2e; font-size: 0.9rem; }
+
+/* Build/Sell/Bank body */
+.prop-action-item { background: rgba(255,255,255,0.3); border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.prop-action-icon { font-size: 1.4rem; }
+.prop-action-info { flex: 1; }
+.prop-action-name { font-weight: 800; font-size: 0.85rem; color: #1a0a2e; }
+.prop-action-detail { font-size: 0.72rem; color: #333; }
+.prop-action-btn { padding: 6px 12px; border: none; border-radius: 20px; background: #1565c0; color: white; font-weight: 700; font-size: 0.78rem; cursor: pointer; }
+.prop-action-btn.sell-btn { background: #c62828; }
+.prop-action-btn:disabled { background: #9e9e9e; cursor: not-allowed; }
+
+/* ===== PAUSE ===== */
+.pause-overlay { position: absolute; inset: 0; z-index: 200; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; }
+.pause-overlay.hidden { display: none; }
+.pause-box { background: linear-gradient(180deg, #ffb300, #ff8c00); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; gap: 14px; width: 280px; box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 3px #f5c518; animation: modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.pause-btn { padding: 16px; border: none; border-radius: 50px; font-family: 'Lilita One', cursive; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.4); transition: transform 0.1s; letter-spacing: 1px; }
+.pause-btn:active { transform: translateY(2px); }
+.btn-resume { background: linear-gradient(180deg, #43a047, #1b5e20); color: white; }
+.btn-settings-p { background: linear-gradient(180deg, #8e44ad, #5b2c6f); color: white; }
+.btn-exit { background: linear-gradient(180deg, #e53935, #b71c1c); color: white; }
+
+/* ===== WINNER ===== */
+.winner-overlay { position: absolute; inset: 0; z-index: 300; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; }
+.winner-overlay.hidden { display: none; }
+.winner-box { background: linear-gradient(135deg, #1a237e, #283593); border-radius: 24px; padding: 40px; text-align: center; width: 320px; box-shadow: 0 0 0 4px #ffd700, 0 0 60px rgba(255,215,0,0.3); animation: modalPop 0.5s cubic-bezier(0.34,1.56,0.64,1); position: relative; overflow: hidden; }
+.winner-trophy { font-size: 5rem; animation: trophyBounce 1s ease infinite; }
+@keyframes trophyBounce { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.1) rotate(5deg)} }
+.winner-box h2 { font-family: 'Lilita One', cursive; color: #ffd700; font-size: 1.8rem; margin: 12px 0 8px; }
+.winner-box p { color: rgba(255,255,255,0.8); font-weight: 700; margin-bottom: 20px; }
+.fireworks { position: absolute; inset: 0; pointer-events: none; }
+.fw { position: absolute; font-size: 1.5rem; animation: firework 2s ease-out infinite; }
+@keyframes firework { 0%{transform:translateY(100%) scale(0);opacity:1} 100%{transform:translateY(-100%) scale(2);opacity:0} }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
+  border-radius: 50px; font-weight: 700; font-size: 0.85rem;
+  z-index: 9999; pointer-events: none; opacity: 0;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  #game-container { flex-direction: column; }
+  #board-wrap { flex: 1; min-height: 0; }
+  #board { width: min(96vw, 96vw); height: min(96vw, 96vw); }
+  #sidebar { width: 100%; min-width: unset; height: 160px; flex-direction: row; flex-shrink: 0; }
+  #score-board { flex-direction: row; overflow-x: auto; flex: 1; padding: 6px; }
+  .score-item { min-width: 110px; }
+  #history-box { width: 150px; flex-shrink: 0; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  #board { width: min(60vh, 60vh); height: min(60vh, 60vh); }
+  #sidebar { width: 180px; }
+}
+
+/* Hide scrollbar but allow scroll */
+.modal-body::-webkit-scrollbar { width: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+
+</style>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SCREENS -->
+<div id="app">
+
+  <!-- MAIN MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-bg">
+      <div class="city-skyline"></div>
+      <div class="clouds">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+      </div>
+      <div class="road"></div>
+      <div class="floating-coins" id="menuCoins"></div>
+    </div>
+    <div class="menu-content">
+      <div class="logo-wrap">
+        <div class="logo-badge">
+          <div class="logo-vehicles">
+            <div class="logo-truck">🚛</div>
+            <div class="logo-plane">✈️</div>
+            <div class="logo-ship">🚢</div>
+          </div>
+          <h1 class="logo-title">CỜ TỶ PHÚ</h1>
+          <p class="logo-sub">ONLINE</p>
+        </div>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn-menu btn-play" onclick="showScreen('setup-players')">
+          <span class="btn-icon">▶</span> CHƠI NGAY
+        </button>
+        <button class="btn-menu btn-settings" onclick="showScreen('settings-main')">
+          <span class="btn-icon">⚙</span> CÀI ĐẶT
+        </button>
+        <button class="btn-menu btn-rules" onclick="showScreen('rules')">
+          <span class="btn-icon">📖</span> LUẬT CHƠI
+        </button>
+      </div>
+      <div class="menu-bottom">
+        <button class="btn-icon-sm" title="Mua">🛒</button>
+        <button class="btn-icon-sm" title="Hồ sơ">👤</button>
+        <button class="btn-icon-sm btn-fav" title="Yêu thích">❤️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP PLAYERS -->
+  <div id="screen-setup-players" class="screen">
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">TẠO GAME MỚI</div>
+        <div class="modal-body">
+          <div id="players-list"></div>
+          <div class="add-player-section">
+            <p class="section-label">THÊM NGƯỜI CHƠI</p>
+            <div class="add-btns">
+              <button class="add-btn btn-human" onclick="addPlayer('human')">
+                <span class="add-icon">👤</span>
+                <span>NGƯỜI</span>
+              </button>
+              <button class="add-btn btn-medium" onclick="addPlayer('medium')">
+                <span class="add-icon">🤖</span>
+                <span>ROBOT<br>VỪA</span>
+              </button>
+              <button class="add-btn btn-easy" onclick="addPlayer('easy')">
+                <span class="add-icon">🤖</span>
+                <span>ROBOT<br>DỄ</span>
+              </button>
+              <button class="add-btn btn-hard" onclick="addPlayer('hard')">
+                <span class="add-icon">🤖</span>
+                <span>ROBOT<br>KHÓ</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="showScreen('menu')">← QUAY LẠI</button>
+          <button class="btn-next" onclick="showScreen('setup-params')">TIẾP THEO →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP PARAMS -->
+  <div id="screen-setup-params" class="screen">
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">THÔNG SỐ GAME</div>
+        <div class="modal-body">
+          <p class="section-label">THỜI GIAN</p>
+          <div class="param-row">
+            <div class="param-card selected" id="mode-fast" onclick="selectMode('fast')">
+              <h3>NHANH</h3>
+              <div class="param-details">
+                <p>Tiền ban đầu: <b>12.500</b></p>
+                <p>Lương: <b>1.000</b></p>
+                <p>Tín dụng: <b>3.000</b></p>
+                <p>Thuê max: <b>500%</b></p>
+              </div>
+            </div>
+            <div class="param-card" id="mode-long" onclick="selectMode('long')">
+              <h3>DÀI</h3>
+              <div class="param-details">
+                <p>Tiền ban đầu: <b>10.000</b></p>
+                <p>Lương: <b>200</b></p>
+                <p>Tín dụng: <b>1.000</b></p>
+                <p>Thuê max: <b>116%</b></p>
+              </div>
+            </div>
+          </div>
+          <p class="section-label" style="margin-top:20px">XÚC XẮC</p>
+          <div class="dice-row">
+            <button class="dice-btn selected" id="dice-1" onclick="selectDice(1)">1</button>
+            <button class="dice-btn" id="dice-2" onclick="selectDice(2)">2</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="showScreen('setup-players')">← QUAY LẠI</button>
+          <button class="btn-play-start" onclick="startGame()">CHƠI ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MAIN -->
+  <div id="screen-settings-main" class="screen">
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">CÀI ĐẶT</div>
+        <div class="modal-body">
+          <div class="setting-row">
+            <span>🔊 Âm thanh</span>
+            <label class="toggle"><input type="checkbox" id="s-sound" checked onchange="toggleSound()"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>🎵 Nhạc nền</span>
+            <label class="toggle"><input type="checkbox" id="s-music" checked onchange="toggleMusic()"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>⚡ Hiệu ứng</span>
+            <label class="toggle"><input type="checkbox" id="s-fx" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>🤖 Tốc độ AI</span>
+            <select id="ai-speed" class="setting-select">
+              <option value="fast">Nhanh</option>
+              <option value="normal" selected>Bình thường</option>
+              <option value="slow">Chậm</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="showScreen('menu')">← QUAY LẠI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div id="screen-rules" class="screen">
+    <div class="modal-overlay">
+      <div class="modal-box modal-tall">
+        <div class="modal-header">LUẬT CHƠI</div>
+        <div class="modal-body rules-body">
+          <div class="rule-item"><span class="rule-icon">🎲</span><div><b>Tung xúc xắc</b><p>Mỗi lượt tung xúc xắc và di chuyển theo số.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🏠</span><div><b>Mua đất</b><p>Dừng ở ô trống, bạn có thể mua để sở hữu.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">💰</span><div><b>Thu tiền thuê</b><p>Ai đi vào đất của bạn phải trả tiền thuê.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🏗️</span><div><b>Xây nhà</b><p>Sở hữu đủ bộ màu để xây nhà, tăng tiền thuê.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🚂</span><div><b>Nhà ga</b><p>Sở hữu nhiều ga tàu tăng tiền thuê đặc biệt.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🎴</span><div><b>Ô Cơ Hội</b><p>Rút thẻ ngẫu nhiên, có thể được thưởng hoặc phạt.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🏛️</span><div><b>START</b><p>Mỗi lần qua START được nhận lương.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">⛓️</span><div><b>Tù</b><p>Vào tù phải ở lại 3 lượt hoặc trả tiền chuộc.</p></div></div>
+          <div class="rule-item"><span class="rule-icon">🏆</span><div><b>Thắng</b><p>Người cuối cùng còn tiền là người chiến thắng!</p></div></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="showScreen('menu')">← QUAY LẠI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME BOARD -->
+  <div id="screen-game" class="screen">
+    <div id="game-container">
+      <!-- Board -->
+      <div id="board-wrap">
+        <div id="board">
+          <div id="board-cells"></div>
+          <div id="board-center">
+            <div class="center-logo">CỜ<br>TỶ PHÚ</div>
+            <div id="coins-anim" class="coins-anim"></div>
+            <div class="plane-wrap"><div class="plane-anim">✈️</div></div>
+            <div class="dice-area">
+              <div id="dice-container">
+                <div class="die" id="die1"><div class="die-face"></div></div>
+                <div class="die" id="die2"><div class="die-face"></div></div>
+              </div>
+              <button id="btn-roll" class="btn-game btn-roll-game" onclick="rollDice()">🎲 TUNG</button>
+            </div>
+            <div class="action-btns">
+              <button class="btn-action" onclick="showBuild()">🏗️ XÂY</button>
+              <button class="btn-action" onclick="showSell()">💸 BÁN</button>
+              <button class="btn-action" onclick="showBank()">🏦 NGÂN HÀNG</button>
+              <button class="btn-action" onclick="showDeal()">🤝 ĐỔI</button>
+            </div>
+          </div>
+          <div id="players-tokens"></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div id="sidebar">
+        <div class="sidebar-header">
+          <button class="btn-pause" onclick="showPause()">⏸</button>
+          <span class="turn-indicator" id="turn-label">Lượt của: <b id="current-player-name">-</b></span>
+        </div>
+        <div id="score-board">
+          <!-- filled by JS -->
+        </div>
+        <div id="history-box">
+          <div class="history-title">LỊCH SỬ</div>
+          <div id="history-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE MENU -->
+    <div id="pause-overlay" class="pause-overlay hidden">
+      <div class="pause-box">
+        <button class="pause-btn btn-resume" onclick="hidePause()">▶ TIẾP TỤC</button>
+        <button class="pause-btn btn-settings-p" onclick="hidePause();showScreen('settings-main')">⚙ CÀI ĐẶT</button>
+        <button class="pause-btn btn-exit" onclick="saveAndExit()">💾 LƯU & THOÁT</button>
+      </div>
+    </div>
+
+    <!-- BUY PROPERTY MODAL -->
+    <div id="buy-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header" id="buy-header">MUA ĐẤT</div>
+        <div class="gm-body">
+          <div class="property-preview" id="buy-preview"></div>
+          <p id="buy-desc"></p>
+          <p class="price-tag" id="buy-price"></p>
+        </div>
+        <div class="gm-footer">
+          <button class="btn-decline" onclick="declineBuy()">❌ TỪ CHỐI</button>
+          <button class="btn-confirm" onclick="confirmBuy()">✅ MUA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAY RENT MODAL -->
+    <div id="rent-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">💸 TIỀN THUÊ</div>
+        <div class="gm-body">
+          <p id="rent-desc"></p>
+          <p class="price-tag rent-tag" id="rent-amount"></p>
+        </div>
+        <div class="gm-footer">
+          <button class="btn-confirm" onclick="closeRentModal()">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANCE MODAL -->
+    <div id="chance-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">🎴 CƠ HỘI</div>
+        <div class="gm-body">
+          <div class="chance-card" id="chance-text"></div>
+        </div>
+        <div class="gm-footer">
+          <button class="btn-confirm" onclick="closeChanceModal()">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAIL MODAL -->
+    <div id="jail-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">⛓️ TÙ</div>
+        <div class="gm-body">
+          <p id="jail-desc"></p>
+        </div>
+        <div class="gm-footer">
+          <button class="btn-decline" onclick="closeJailModal()">Ở lại</button>
+          <button class="btn-confirm" onclick="payJail()">💰 Trả 500 để ra</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUILD MODAL -->
+    <div id="build-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">🏗️ XÂY NHÀ</div>
+        <div class="gm-body" id="build-body"></div>
+        <div class="gm-footer">
+          <button class="btn-decline" onclick="closeBuildModal()">ĐÓNG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SELL MODAL -->
+    <div id="sell-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">💸 BÁN TÀI SẢN</div>
+        <div class="gm-body" id="sell-body"></div>
+        <div class="gm-footer">
+          <button class="btn-decline" onclick="closeSellModal()">ĐÓNG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANK MODAL -->
+    <div id="bank-modal" class="game-modal hidden">
+      <div class="gm-box">
+        <div class="gm-header">🏦 NGÂN HÀNG</div>
+        <div class="gm-body" id="bank-body"></div>
+        <div class="gm-footer">
+          <button class="btn-decline" onclick="closeBankModal()">ĐÓNG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINNER SCREEN -->
+    <div id="winner-overlay" class="winner-overlay hidden">
+      <div class="winner-box">
+        <div class="winner-trophy">🏆</div>
+        <h2 id="winner-name">NGƯỜI CHIẾN THẮNG</h2>
+        <p id="winner-money"></p>
+        <div class="fireworks" id="fireworks"></div>
+        <button class="btn-play-start" onclick="showScreen('menu')">🏠 MENU CHÍNH</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script>
+// board.js — Board definition and rendering
+
+const BOARD_COLORS = {
+  brown:  '#795548',
+  lblue:  '#81d4fa',
+  pink:   '#f48fb1',
+  orange: '#ffb74d',
+  red:    '#ef5350',
+  yellow: '#fff176',
+  green:  '#66bb6a',
+  dblue:  '#42a5f5',
+};
+
+const BOARD_SQUARES = [
+  // Bottom row (left to right) index 0-9
+  { id: 0,  type: 'corner', name: 'START',     icon: '🏁', price: 0 },
+  { id: 1,  type: 'prop',   name: 'Shop',      price: 400,  rent: [40,200,600,1400,1700,2000],  color: 'brown',  group: 0 },
+  { id: 2,  type: 'chance', name: 'Cơ Hội',    icon: '🎴',  price: 0 },
+  { id: 3,  type: 'prop',   name: 'Siêu Thị',  price: 500,  rent: [50,250,700,1500,1800,2100],  color: 'brown',  group: 0 },
+  { id: 4,  type: 'tax',    name: 'Thuế',       icon: '💸',  price: 0, fee: 200 },
+  { id: 5,  type: 'train',  name: 'Nhà Ga 1',   icon: '🚂',  price: 1000 },
+  { id: 6,  type: 'prop',   name: 'Pizzeria',   price: 1000, rent: [80,400,1000,1800,2000,2200], color: 'lblue',  group: 1 },
+  { id: 7,  type: 'chest',  name: 'Ngân Khố',   icon: '📦',  price: 0 },
+  { id: 8,  type: 'prop',   name: 'Rạp Phim',   price: 1100, rent: [100,500,1100,1900,2100,2300],color: 'lblue',  group: 1 },
+  { id: 9,  type: 'prop',   name: 'Quán Bar',   price: 1200, rent: [110,550,1200,2000,2200,2500],color: 'lblue',  group: 1 },
+  // Right col (bottom to top) index 10-19
+  { id: 10, type: 'corner', name: 'TÙ',         icon: '⛓️',  price: 0 },
+  { id: 11, type: 'prop',   name: 'Sân Băng',   price: 900,  rent: [90,450,1000,1750,1950,2150], color: 'pink',   group: 2 },
+  { id: 12, type: 'prop',   name: 'Vườn Thú',   price: 800,  rent: [70,350,900,1600,1800,2000],  color: 'pink',   group: 2 },
+  { id: 13, type: 'chance', name: 'Cơ Hội',     icon: '🎴',  price: 0 },
+  { id: 14, type: 'prop',   name: 'Hồ Bơi',     price: 700,  rent: [60,300,800,1500,1700,1900],  color: 'pink',   group: 2 },
+  { id: 15, type: 'train',  name: 'Nhà Ga 2',   icon: '🚂',  price: 1000 },
+  { id: 16, type: 'prop',   name: 'Trạm Xăng',  price: 600,  rent: [55,280,750,1450,1650,1850],  color: 'orange', group: 3 },
+  { id: 17, type: 'tax',    name: 'Thuế Xa Xỉ', icon: '💎',  price: 0, fee: 100 },
+  { id: 18, type: 'prop',   name: 'Sân Bay',    price: 1300, rent: [120,600,1300,2100,2300,2500], color: 'orange', group: 3 },
+  { id: 19, type: 'prop',   name: 'Salon Xe',   price: 1400, rent: [140,700,1400,2200,2400,2600], color: 'orange', group: 3 },
+  // Top row (right to left) index 20-29
+  { id: 20, type: 'corner', name: 'ĐỖ XE',      icon: '🅿️',  price: 0 },
+  { id: 21, type: 'prop',   name: 'CLB Đêm',    price: 1200, rent: [110,550,1200,2000,2200,2500], color: 'red',   group: 4 },
+  { id: 22, type: 'train',  name: 'Nhà Ga 3',   icon: '🚂',  price: 1000 },
+  { id: 23, type: 'prop',   name: 'Hollywood',  price: 2400, rent: [200,1000,2400,3200,3500,3800], color: 'red',  group: 4 },
+  { id: 24, type: 'chance', name: 'Cơ Hội',     icon: '🎴',  price: 0 },
+  { id: 25, type: 'prop',   name: 'Nhà Máy ĐT', price: 1800, rent: [150,750,1800,2600,2900,3200], color: 'red',  group: 4 },
+  { id: 26, type: 'prop',   name: 'Kẹo Candy',  price: 2000, rent: [170,850,2000,2800,3100,3400], color: 'yellow',group: 5 },
+  { id: 27, type: 'special',name: 'Tên Trộm',   icon: '🦹',  price: 0 },
+  { id: 28, type: 'prop',   name: 'Đồ Chơi',    price: 1900, rent: [160,800,1900,2700,3000,3300], color: 'yellow',group: 5 },
+  { id: 29, type: 'prop',   name: 'Nông Trại',  price: 2100, rent: [180,900,2100,2900,3200,3500], color: 'yellow',group: 5 },
+  // Left col (top to bottom) index 30-39
+  { id: 30, type: 'corner', name: 'ĐI TÙ',      icon: '👮',  price: 0 },
+  { id: 31, type: 'prop',   name: 'Nông Trại HQ',price: 2200,rent: [190,950,2200,3000,3300,3600], color: 'green', group: 6 },
+  { id: 32, type: 'prop',   name: 'Mỏ Kim Cương',price: 2300,rent: [195,975,2300,3100,3400,3700], color: 'green', group: 6 },
+  { id: 33, type: 'chest',  name: 'Ngân Khố',    icon: '📦',  price: 0 },
+  { id: 34, type: 'prop',   name: 'Giếng Dầu',   price: 2200, rent: [190,950,2200,3000,3300,3600], color: 'green', group: 6 },
+  { id: 35, type: 'train',  name: 'Nhà Ga 4',    icon: '🚂',  price: 1000 },
+  { id: 36, type: 'chance', name: 'Cơ Hội',      icon: '🎴',  price: 0 },
+  { id: 37, type: 'prop',   name: 'Kênh Truyền Hình', price: 1700, rent: [145,725,1700,2500,2800,3100], color: 'dblue', group: 7 },
+  { id: 38, type: 'prop',   name: 'Báo',         price: 1600, rent: [135,675,1600,2400,2700,3000], color: 'dblue', group: 7 },
+  { id: 39, type: 'prop',   name: 'Ngân Hàng',   icon: '🏦',  price: 0, type2: 'bank' },
+];
+
+// Train rent based on number owned
+const TRAIN_RENT = [0, 250, 500, 750, 1000];
+
+// Chance cards
+const CHANCE_CARDS = [
+  { text: '🎉 Nhận thưởng từ quỹ từ thiện: +500$', effect: (p) => { p.money += 500; return '+500$'; } },
+  { text: '🏖️ Nghỉ lễ! Tiến lên 3 ô phía trước.', effect: (p, g) => { g.movePlayer(p, 3, true); return 'di chuyển'; } },
+  { text: '🏠 Sửa nhà: Trả 100$ mỗi nhà.', effect: (p, g) => { const houses = g.countPlayerHouses(p); const fee = houses * 100; p.money -= fee; return `-${fee}$`; } },
+  { text: '💰 Cổ tức: Nhận 50$ từ mỗi người chơi.', effect: (p, g) => { g.collectFromAll(p, 50); return '+tiền từ người chơi'; } },
+  { text: '🚔 Cảnh sát bắt! Vào tù ngay.', effect: (p, g) => { g.sendToJail(p); return 'vào tù'; } },
+  { text: '🎁 Quà sinh nhật! Nhận 200$.', effect: (p) => { p.money += 200; return '+200$'; } },
+  { text: '📉 Thị trường sụp đổ! Mất 300$.', effect: (p) => { p.money -= 300; return '-300$'; } },
+  { text: '✈️ Du lịch miễn phí! Đến ô START và nhận lương.', effect: (p, g) => { g.moveToStart(p); return 'di chuyển đến START'; } },
+  { text: '🏆 Thắng giải thưởng: +1000$', effect: (p) => { p.money += 1000; return '+1000$'; } },
+  { text: '💊 Chi phí y tế: -150$', effect: (p) => { p.money -= 150; return '-150$'; } },
+  { text: '🔙 Đi lùi 3 ô.', effect: (p, g) => { g.movePlayer(p, -3, true); return 'di chuyển'; } },
+  { text: '🎰 May mắn! Nhận 100$.', effect: (p) => { p.money += 100; return '+100$'; } },
+];
+
+const CHEST_CARDS = [
+  { text: '💳 Hoàn tiền thuế: +200$', effect: (p) => { p.money += 200; return '+200$'; } },
+  { text: '🎂 Sinh nhật! Nhận 50$ từ mỗi người.', effect: (p, g) => { g.collectFromAll(p, 50); return '+tiền'; } },
+  { text: '💸 Trả phí học đường: -100$', effect: (p) => { p.money -= 100; return '-100$'; } },
+  { text: '🏥 Viện phí: -50$', effect: (p) => { p.money -= 50; return '-50$'; } },
+  { text: '📬 Nhận bưu kiện: +100$', effect: (p) => { p.money += 100; return '+100$'; } },
+  { text: '🌊 Thoát tù miễn phí (dùng 1 lần).', effect: (p) => { p.jailCard = true; return 'có thẻ thoát tù'; } },
+  { text: '💰 Thu tiền bảo hiểm: +300$', effect: (p) => { p.money += 300; return '+300$'; } },
+  { text: '📉 Thua lỗ kinh doanh: -200$', effect: (p) => { p.money -= 200; return '-200$'; } },
+];
+
+// Render the board cells
+function renderBoard(boardEl, boardSize) {
+  boardEl.innerHTML = '';
+  const N = 40; // total squares
+  const CELLS_PER_SIDE = 10;
+  
+  // Board is a grid-based layout
+  // We'll position each cell absolutely
+  const cellW = boardSize / (CELLS_PER_SIDE + 1); // +1 for corners
+  const cornerW = cellW * 1.4;
+  const sideW = (boardSize - cornerW * 2) / (CELLS_PER_SIDE - 2);
+  
+  // We'll use CSS grid approach with absolute positioning
+  const cells = BOARD_SQUARES;
+  
+  cells.forEach((sq, i) => {
+    const el = document.createElement('div');
+    el.className = 'board-cell';
+    el.id = `cell-${i}`;
+    el.dataset.id = i;
+    
+    // Position: 0-9 bottom, 10-19 right, 20-29 top, 30-39 left
+    const pos = getCellPosition(i, boardSize);
+    el.style.left = pos.left + 'px';
+    el.style.top = pos.top + 'px';
+    el.style.width = pos.width + 'px';
+    el.style.height = pos.height + 'px';
+    
+    // Rotation for side labels
+    if (i >= 11 && i <= 19) {
+      el.style.flexDirection = 'row';
+    } else if (i >= 21 && i <= 29) {
+      el.style.transform = 'rotate(180deg)';
+    } else if (i >= 31 && i <= 39) {
+      el.style.flexDirection = 'row-reverse';
+    }
+    
+    el.innerHTML = renderCell(sq, i);
+    el.style.background = getCellBg(sq);
+    boardEl.appendChild(el);
+  });
+}
+
+function getCellPosition(i, boardSize) {
+  const cs = boardSize; // container size
+  const cornerSz = cs * 0.155; // corner cell size
+  const sideSz = (cs - cornerSz * 2) / 8; // 8 side cells per side
+  
+  let left, top, width, height;
+  
+  if (i === 0) { // bottom-right (START)
+    left = cs - cornerSz; top = cs - cornerSz;
+    width = cornerSz; height = cornerSz;
+  } else if (i >= 1 && i <= 9) { // bottom row, right to left
+    const idx = 9 - i; // 0=idx8, i=9 is leftmost
+    left = cornerSz + idx * sideSz; top = cs - cornerSz;
+    width = sideSz; height = cornerSz;
+    // Actually bottom row goes from right (corner) to left
+    // i=1 is just left of corner 0 (START), i=9 is rightmost before corner 10
+    left = cs - cornerSz - i * sideSz;
+    width = sideSz; height = cornerSz;
+  } else if (i === 10) { // bottom-left (JAIL)
+    left = 0; top = cs - cornerSz;
+    width = cornerSz; height = cornerSz;
+  } else if (i >= 11 && i <= 19) { // left col, bottom to top
+    const idx = i - 11; // 0 to 8
+    left = 0; top = cs - cornerSz - (idx + 1) * sideSz;
+    width = cornerSz; height = sideSz;
+  } else if (i === 20) { // top-left (PARKING)
+    left = 0; top = 0;
+    width = cornerSz; height = cornerSz;
+  } else if (i >= 21 && i <= 29) { // top row, left to right
+    const idx = i - 21; // 0 to 8
+    left = cornerSz + idx * sideSz; top = 0;
+    width = sideSz; height = cornerSz;
+  } else if (i === 30) { // top-right (GO TO JAIL)
+    left = cs - cornerSz; top = 0;
+    width = cornerSz; height = cornerSz;
+  } else if (i >= 31 && i <= 39) { // right col, top to bottom
+    const idx = i - 31; // 0 to 8
+    left = cs - cornerSz; top = cornerSz + idx * sideSz;
+    width = cornerSz; height = sideSz;
+  }
+  
+  return { left, top, width, height };
+}
+
+function renderCell(sq, i) {
+  if (sq.type === 'corner' || sq.type2 === 'bank') {
+    return `<div class="corner-cell" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.6em;font-weight:800;gap:2px;">
+      <span style="font-size:1.8em">${sq.icon || getCellIcon(sq)}</span>
+      <span>${sq.name}</span>
+    </div>`;
+  }
+  
+  if (sq.type === 'prop') {
+    const colorBar = `<div class="cell-color-bar" style="background:${BOARD_COLORS[sq.color]};width:100%;height:22%;flex-shrink:0;"></div>`;
+    return `${colorBar}
+      <div class="cell-name">${sq.name}</div>
+      <div class="cell-price">$${sq.price}</div>
+      <div class="cell-buildings" id="buildings-${i}"></div>`;
+  }
+  
+  return `<div class="cell-icon">${sq.icon}</div>
+    <div class="cell-name">${sq.name}</div>
+    ${sq.fee ? `<div class="cell-price">$${sq.fee}</div>` : ''}`;
+}
+
+function getCellBg(sq) {
+  switch(sq.type) {
+    case 'chance': return '#fff9c4';
+    case 'chest': return '#c8e6c9';
+    case 'tax': return '#ffccbc';
+    case 'train': return '#e0e0e0';
+    case 'special': return '#f3e5f5';
+    case 'corner': return '#dcedc8';
+    default: return 'white';
+  }
+}
+
+function getCellIcon(sq) {
+  switch(sq.name) {
+    case 'START': return '🏁';
+    case 'TÙ': return '⛓️';
+    case 'ĐỖ XE': return '🅿️';
+    case 'ĐI TÙ': return '👮';
+    default: return '🏢';
+  }
+}
+
+function updateBuildingDisplay(cellId, level) {
+  const el = document.getElementById(`buildings-${cellId}`);
+  if (!el) return;
+  const icons = ['', '🏠', '🏠🏠', '🏢'];
+  el.innerHTML = icons[level] ? icons[level].split('').map(c => `<span class="cell-house">${c}</span>`).join('') : '';
+}
+
+</script>
+<script>
+// ai.js — Robot AI decision making
+
+class RobotAI {
+  constructor(difficulty) {
+    this.difficulty = difficulty; // 'easy', 'medium', 'hard'
+  }
+  
+  // Should the robot buy this property?
+  shouldBuy(player, square, gameState) {
+    if (player.money < square.price) return false;
+    
+    switch (this.difficulty) {
+      case 'easy':
+        return Math.random() > 0.4; // 60% chance to buy
+      case 'medium':
+        return this.mediumBuyDecision(player, square, gameState);
+      case 'hard':
+        return this.hardBuyDecision(player, square, gameState);
+      default:
+        return true;
+    }
+  }
+  
+  mediumBuyDecision(player, square, gameState) {
+    // Buy if cheap and have funds
+    const affordableRatio = player.money / square.price;
+    if (affordableRatio < 1.5) return false; // keep some reserve
+    if (square.price <= 1200) return true;
+    return Math.random() > 0.3;
+  }
+  
+  hardBuyDecision(player, square, gameState) {
+    const affordableRatio = player.money / square.price;
+    if (affordableRatio < 1.3) return false;
+    
+    // Prioritize completing color groups
+    if (square.type === 'prop') {
+      const groupSquares = gameState.squares.filter(s => s.color === square.color && s.type === 'prop');
+      const ownedInGroup = groupSquares.filter(s => s.owner === player.id).length;
+      const groupSize = groupSquares.length;
+      
+      // High priority if close to completing group
+      if (ownedInGroup >= groupSize - 1) return true;
+      if (ownedInGroup > 0) return affordableRatio > 1.5;
+    }
+    
+    // Buy trains strategically
+    if (square.type === 'train') {
+      const trainsOwned = gameState.squares.filter(s => s.type === 'train' && s.owner === player.id).length;
+      return trainsOwned > 0 || affordableRatio > 2;
+    }
+    
+    return affordableRatio > 1.5;
+  }
+  
+  // Should the robot build a house?
+  buildDecision(player, gameState) {
+    const completedGroups = this.getCompletedGroups(player, gameState);
+    if (completedGroups.length === 0) return null;
+    
+    if (this.difficulty === 'easy') return null; // easy doesn't build
+    
+    for (const group of completedGroups) {
+      for (const sq of group) {
+        if (sq.level < 3 && player.money > sq.price * 0.8) {
+          return sq.id;
+        }
+      }
+    }
+    return null;
+  }
+  
+  // Should the robot sell a property?
+  sellDecision(player, gameState) {
+    if (player.money >= 0) return null; // only sell when broke
+    
+    // Sell cheapest properties first
+    const ownedProps = gameState.squares.filter(s => s.owner === player.id && s.type === 'prop');
+    if (ownedProps.length === 0) return null;
+    
+    // Sort by price ascending (sell cheap ones first)
+    ownedProps.sort((a, b) => a.price - b.price);
+    return ownedProps[0].id;
+  }
+  
+  getCompletedGroups(player, gameState) {
+    const groups = {};
+    for (const sq of gameState.squares) {
+      if (sq.type === 'prop' && sq.owner === player.id) {
+        if (!groups[sq.color]) groups[sq.color] = [];
+        groups[sq.color].push(sq);
+      }
+    }
+    
+    return Object.entries(groups)
+      .filter(([color, sqs]) => {
+        const totalInGroup = gameState.squares.filter(s => s.type === 'prop' && s.color === color).length;
+        return sqs.length === totalInGroup;
+      })
+      .map(([, sqs]) => sqs);
+  }
+  
+  // Decide whether to use jail card or pay
+  jailDecision(player) {
+    if (player.jailCard) return 'card';
+    if (this.difficulty === 'hard' && player.money > 1000) return 'pay';
+    if (this.difficulty === 'medium' && player.money > 500) return 'pay';
+    return 'stay';
+  }
+  
+  // Full AI turn logic
+  async takeTurn(player, gameState, callbacks) {
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+    const aiDelay = { fast: 500, normal: 900, slow: 1500 }[gameState.aiSpeed || 'normal'];
+    
+    await delay(aiDelay);
+    
+    // Handle jail
+    if (player.inJail) {
+      const decision = this.jailDecision(player);
+      if (decision === 'pay' || decision === 'card') {
+        callbacks.handleJail(player, decision);
+        await delay(aiDelay);
+      } else {
+        player.jailTurns++;
+        if (player.jailTurns >= 3) {
+          player.money -= 500;
+          player.inJail = false;
+          player.jailTurns = 0;
+        } else {
+          callbacks.nextTurn();
+          return;
+        }
+      }
+    }
+    
+    // Roll dice
+    callbacks.roll();
+    await delay(aiDelay * 1.5);
+    
+    // After landing, decisions are handled via callbacks
+  }
+}
+
+</script>
+<script>
+// game.js — Main game logic
+
+const PLAYER_COLORS = ['#f44336','#2196f3','#4caf50','#ff9800'];
+const PLAYER_EMOJIS = ['😎','🤠','🤩','😈'];
+const PLAYER_NAMES  = ['Hùng','Lan','Minh','Hoa'];
+
+let G = null; // global game state
+
+// ===== SCREEN NAV =====
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + name);
+  if (el) el.classList.add('active');
+  if (name === 'menu') spawnMenuCoins();
+  if (name === 'setup-players') renderPlayerSetup();
+}
+
+// ===== MENU COINS =====
+function spawnMenuCoins() {
+  const container = document.getElementById('menuCoins');
+  if (!container) return;
+  container.innerHTML = '';
+  const coins = ['💰','🪙','💵','💴','💶'];
+  for (let i = 0; i < 12; i++) {
+    const fc = document.createElement('div');
+    fc.className = 'fc';
+    fc.textContent = coins[Math.floor(Math.random() * coins.length)];
+    fc.style.left = Math.random() * 100 + '%';
+    fc.style.animationDelay = Math.random() * 4 + 's';
+    fc.style.animationDuration = (3 + Math.random() * 3) + 's';
+    container.appendChild(fc);
+  }
+}
+
+// ===== SETUP =====
+let setupPlayers = [];
+let gameMode = 'fast';
+let diceCount = 2;
+
+function renderPlayerSetup() {
+  if (setupPlayers.length === 0) {
+    setupPlayers = [{ name: 'Bạn', type: 'human', id: 0 }];
+  }
+  const list = document.getElementById('players-list');
+  list.innerHTML = '';
+  setupPlayers.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'player-item';
+    div.innerHTML = `
+      <div class="player-avatar" style="background:${PLAYER_COLORS[i]}">${PLAYER_EMOJIS[i]}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name}</div>
+        <div class="player-type">${typeLabel(p.type)}</div>
+      </div>
+      ${i > 0 ? `<button class="player-remove" onclick="removePlayer(${i})">✕</button>` : ''}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function typeLabel(t) {
+  return { human: '👤 Người', easy: '🤖 Robot Dễ', medium: '🤖 Robot Vừa', hard: '🤖 Robot Khó' }[t] || t;
+}
+
+function addPlayer(type) {
+  if (setupPlayers.length >= 4) { showToast('Tối đa 4 người chơi!'); return; }
+  const i = setupPlayers.length;
+  setupPlayers.push({ name: type === 'human' ? `Người ${i+1}` : `Robot ${i+1}`, type, id: i });
+  renderPlayerSetup();
+}
+
+function removePlayer(idx) {
+  if (setupPlayers.length <= 2) { showToast('Cần ít nhất 2 người chơi!'); return; }
+  setupPlayers.splice(idx, 1);
+  setupPlayers.forEach((p, i) => p.id = i);
+  renderPlayerSetup();
+}
+
+function selectMode(mode) {
+  gameMode = mode;
+  document.getElementById('mode-fast').classList.toggle('selected', mode === 'fast');
+  document.getElementById('mode-long').classList.toggle('selected', mode === 'long');
+}
+
+function selectDice(n) {
+  diceCount = n;
+  document.getElementById('dice-1').classList.toggle('selected', n === 1);
+  document.getElementById('dice-2').classList.toggle('selected', n === 2);
+}
+
+// ===== START GAME =====
+function startGame() {
+  if (setupPlayers.length < 2) { showToast('Cần ít nhất 2 người chơi!'); return; }
+  
+  const params = gameMode === 'fast'
+    ? { startMoney: 12500, salary: 1000, creditLimit: 3000, rentMax: 5.0 }
+    : { startMoney: 10000, salary: 200, creditLimit: 1000, rentMax: 1.16 };
+  
+  // Init game state
+  G = {
+    players: setupPlayers.map((p, i) => ({
+      id: i, name: p.name, type: p.type, emoji: PLAYER_EMOJIS[i], color: PLAYER_COLORS[i],
+      money: params.startMoney, position: 0, inJail: false, jailTurns: 0,
+      jailCard: false, bankDebt: 0, bankrupt: false,
+      ai: p.type !== 'human' ? new RobotAI(p.type) : null,
+    })),
+    squares: BOARD_SQUARES.map((sq, i) => ({
+      ...sq, id: i, owner: null, level: 0,
+    })),
+    params,
+    diceCount,
+    currentPlayer: 0,
+    phase: 'roll', // 'roll' | 'action'
+    rolling: false,
+    log: [],
+    aiSpeed: document.getElementById('ai-speed')?.value || 'normal',
+    lastDice: [1, 1],
+    turnCount: 0,
+  };
+  
+  showScreen('game');
+  setTimeout(() => initBoard(), 50);
+}
+
+function initBoard() {
+  const board = document.getElementById('board');
+  const size = board.offsetWidth;
+  renderBoard(document.getElementById('board-cells'), size);
+  renderTokens();
+  renderScoreboard();
+  updateDiceDisplay([1, 1]);
+  addLog('🎮 Trò chơi bắt đầu!', 'log-start');
+  startTurn();
+}
+
+// ===== TURN MANAGEMENT =====
+function startTurn() {
+  const p = currentPlayer();
+  document.getElementById('current-player-name').textContent = p.name;
+  renderScoreboard();
+  
+  if (p.bankrupt) { nextTurn(); return; }
+  
+  G.phase = 'roll';
+  document.getElementById('btn-roll').disabled = false;
+  
+  addLog(`🎯 Lượt của ${p.name}`, 'log-start');
+  
+  if (p.type !== 'human' && p.ai) {
+    document.getElementById('btn-roll').disabled = true;
+    p.ai.takeTurn(p, G, {
+      roll: rollDice,
+      handleJail: (pl, decision) => handleJailDecision(pl, decision),
+      nextTurn,
+    });
+  }
+}
+
+function nextTurn() {
+  if (checkWinner()) return;
+  
+  do {
+    G.currentPlayer = (G.currentPlayer + 1) % G.players.length;
+  } while (currentPlayer().bankrupt);
+  
+  G.turnCount++;
+  setTimeout(() => startTurn(), 300);
+}
+
+function currentPlayer() {
+  return G.players[G.currentPlayer];
+}
+
+// ===== DICE =====
+function rollDice() {
+  if (G.rolling || G.phase !== 'roll') return;
+  G.rolling = true;
+  document.getElementById('btn-roll').disabled = true;
+  
+  const p = currentPlayer();
+  
+  // Handle jail
+  if (p.inJail) {
+    showJailModal(p);
+    G.rolling = false;
+    return;
+  }
+  
+  // Animate dice
+  const d1 = document.getElementById('die1');
+  const d2 = document.getElementById('die2');
+  d1.classList.add('rolling');
+  if (G.diceCount === 2) d2.classList.add('rolling');
+  
+  playSound('dice');
+  
+  setTimeout(() => {
+    const r1 = Math.ceil(Math.random() * 6);
+    const r2 = G.diceCount === 2 ? Math.ceil(Math.random() * 6) : 0;
+    G.lastDice = [r1, r2];
+    
+    updateDiceDisplay([r1, r2]);
+    d1.classList.remove('rolling');
+    d2.classList.remove('rolling');
+    
+    const total = r1 + r2;
+    addLog(`🎲 Tung được: ${r1}${G.diceCount === 2 ? '+'+r2+'='+total : ''}`);
+    
+    const isDouble = G.diceCount === 2 && r1 === r2;
+    if (isDouble) addLog('🎊 Double! Tung thêm lượt', 'log-chance');
+    
+    movePlayer(p, total, false, isDouble);
+  }, 700);
+}
+
+function updateDiceDisplay(dice) {
+  const faces = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  document.querySelector('#die1 .die-face').textContent = faces[dice[0]] || '';
+  document.querySelector('#die2 .die-face').textContent = G.diceCount === 2 ? (faces[dice[1]] || '') : '';
+  document.getElementById('die2').style.display = G.diceCount === 2 ? 'flex' : 'none';
+}
+
+// ===== MOVEMENT =====
+function movePlayer(player, steps, silent = false, extraTurn = false) {
+  const oldPos = player.position;
+  let newPos = (oldPos + steps + 40) % 40;
+  
+  // Check passing START
+  const passedStart = steps > 0 && newPos < oldPos;
+  if (passedStart && !silent) {
+    player.money += G.params.salary;
+    addLog(`🏁 ${player.name} qua START, nhận lương +${G.params.salary}$`, 'log-buy');
+    showToast(`+${G.params.salary}$ lương!`);
+  }
+  
+  animateToken(player, oldPos, newPos, () => {
+    player.position = newPos;
+    G.rolling = false;
+    renderScoreboard();
+    landOnSquare(player, G.squares[newPos], extraTurn);
+  });
+}
+
+function animateToken(player, from, to, callback) {
+  // Move step by step
+  const steps = [];
+  let cur = from;
+  while (cur !== to) {
+    cur = (cur + 1) % 40;
+    steps.push(cur);
+  }
+  
+  let i = 0;
+  function step() {
+    if (i >= steps.length) { callback(); return; }
+    player.position = steps[i];
+    updateTokenPosition(player);
+    i++;
+    setTimeout(step, 60);
+  }
+  step();
+}
+
+function moveToStart(player) {
+  player.money += G.params.salary;
+  player.position = 0;
+  updateTokenPosition(player);
+  addLog(`✈️ ${player.name} bay về START`, 'log-chance');
+}
+
+function moveToJail(player) {
+  sendToJail(player);
+}
+
+function sendToJail(player) {
+  player.position = 10;
+  player.inJail = true;
+  player.jailTurns = 0;
+  updateTokenPosition(player);
+  addLog(`⛓️ ${player.name} vào tù!`, 'log-jail');
+  showToast(`${player.name} vào tù!`);
+}
+
+function countPlayerHouses(player) {
+  return G.squares.filter(s => s.owner === player.id).reduce((sum, s) => sum + s.level, 0);
+}
+
+function collectFromAll(recipient, amount) {
+  G.players.forEach(p => {
+    if (p.id !== recipient.id && !p.bankrupt) {
+      p.money -= amount;
+      recipient.money += amount;
+    }
+  });
+}
+
+// ===== LANDING =====
+function landOnSquare(player, square, extraTurn = false) {
+  G.phase = 'action';
+  
+  switch (square.type) {
+    case 'prop':
+    case 'train':
+      handlePropertyLand(player, square, extraTurn);
+      break;
+    case 'chance':
+      handleChance(player, extraTurn);
+      break;
+    case 'chest':
+      handleChest(player, extraTurn);
+      break;
+    case 'tax':
+      handleTax(player, square, extraTurn);
+      break;
+    case 'special':
+      if (square.name === 'Tên Trộm') handleRobber(player, extraTurn);
+      else endAction(player, extraTurn);
+      break;
+    case 'corner':
+      if (square.name === 'ĐI TÙ') {
+        sendToJail(player);
+        setTimeout(() => endAction(player, false), 500);
+      } else {
+        endAction(player, extraTurn);
+      }
+      break;
+    default:
+      endAction(player, extraTurn);
+  }
+}
+
+function handlePropertyLand(player, square, extraTurn) {
+  if (!square.owner) {
+    // Unowned — can buy
+    if (player.type !== 'human' && player.ai) {
+      if (player.ai.shouldBuy(player, square, G)) {
+        confirmBuySquare(player, square);
+        addLog(`🏠 ${player.name} mua ${square.name} ($${square.price})`, 'log-buy');
+        playSound('buy');
+        spawnCoins();
+      }
+      endAction(player, extraTurn);
+    } else {
+      showBuyModal(player, square, extraTurn);
+    }
+  } else if (square.owner === player.id) {
+    // Own property
+    addLog(`🏠 ${player.name} đứng trên đất của mình`);
+    endAction(player, extraTurn);
+  } else {
+    // Owned by another — pay rent
+    const owner = G.players[square.owner];
+    const rent = calculateRent(square, owner);
+    payRent(player, owner, rent, square.name, extraTurn);
+  }
+}
+
+function calculateRent(square, owner) {
+  if (square.type === 'train') {
+    const trainsOwned = G.squares.filter(s => s.type === 'train' && s.owner === owner.id).length;
+    return TRAIN_RENT[trainsOwned] || 250;
+  }
+  const baseRent = square.rent[square.level] || square.rent[0];
+  return Math.min(baseRent, baseRent * G.params.rentMax);
+}
+
+function payRent(player, owner, rent, propName, extraTurn) {
+  const actualRent = Math.min(rent, player.money + G.params.creditLimit);
+  player.money -= actualRent;
+  owner.money += actualRent;
+  
+  addLog(`💸 ${player.name} trả ${actualRent}$ thuê cho ${owner.name} (${propName})`, 'log-rent');
+  playSound('rent');
+  
+  if (player.type === 'human') {
+    document.getElementById('rent-desc').textContent = `${owner.name} sở hữu ${propName}`;
+    document.getElementById('rent-amount').textContent = `-${actualRent}$`;
+    document.getElementById('rent-modal').classList.remove('hidden');
+    window._rentCallback = () => { endAction(player, extraTurn); };
+  } else {
+    checkBankruptcy(player);
+    endAction(player, extraTurn);
+  }
+  
+  renderScoreboard();
+}
+
+function closeRentModal() {
+  document.getElementById('rent-modal').classList.add('hidden');
+  checkBankruptcy(currentPlayer());
+  if (window._rentCallback) { window._rentCallback(); window._rentCallback = null; }
+}
+
+function handleChance(player, extraTurn) {
+  const card = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
+  const result = card.effect(player, { squares: G.squares, movePlayer, sendToJail, moveToStart, countPlayerHouses, collectFromAll });
+  
+  addLog(`🎴 CƠ HỘI: ${result}`, 'log-chance');
+  playSound('chance');
+  renderScoreboard();
+  
+  if (player.type === 'human') {
+    document.getElementById('chance-text').textContent = card.text;
+    document.getElementById('chance-modal').classList.remove('hidden');
+    window._chanceCallback = () => { endAction(player, extraTurn); };
+  } else {
+    setTimeout(() => endAction(player, extraTurn), 300);
+  }
+}
+
+function closeChanceModal() {
+  document.getElementById('chance-modal').classList.add('hidden');
+  if (window._chanceCallback) { window._chanceCallback(); window._chanceCallback = null; }
+}
+
+function handleChest(player, extraTurn) {
+  const card = CHEST_CARDS[Math.floor(Math.random() * CHEST_CARDS.length)];
+  const result = card.effect(player, { squares: G.squares, collectFromAll });
+  addLog(`📦 NGÂN KHỐ: ${result}`, 'log-chance');
+  renderScoreboard();
+  if (player.type === 'human') {
+    document.getElementById('chance-text').textContent = card.text;
+    document.getElementById('chance-modal').classList.remove('hidden');
+    window._chanceCallback = () => { endAction(player, extraTurn); };
+  } else {
+    setTimeout(() => endAction(player, extraTurn), 300);
+  }
+}
+
+function handleTax(player, square, extraTurn) {
+  const fee = square.fee || 200;
+  player.money -= fee;
+  addLog(`💸 ${player.name} nộp thuế ${fee}$`, 'log-rent');
+  renderScoreboard();
+  checkBankruptcy(player);
+  endAction(player, extraTurn);
+}
+
+function handleRobber(player, extraTurn) {
+  // Rob from richest player
+  const richest = G.players.filter(p => p.id !== player.id && !p.bankrupt)
+    .sort((a, b) => b.money - a.money)[0];
+  if (richest && richest.money > 0) {
+    const amount = Math.min(200, richest.money);
+    richest.money -= amount;
+    player.money += amount;
+    addLog(`🦹 ${player.name} cướp ${amount}$ từ ${richest.name}!`, 'log-rent');
+    showToast(`Cướp ${amount}$ từ ${richest.name}!`);
+    renderScoreboard();
+  }
+  endAction(player, extraTurn);
+}
+
+function endAction(player, extraTurn) {
+  G.phase = 'roll';
+  
+  // AI build decision
+  if (player.type !== 'human' && player.ai) {
+    const buildId = player.ai.buildDecision(player, G);
+    if (buildId !== null) {
+      const sq = G.squares[buildId];
+      if (sq && canBuildOn(player, sq)) {
+        buildHouse(player, sq);
+      }
+    }
+    const sellId = player.ai.sellDecision(player, G);
+    if (sellId !== null) {
+      const sq = G.squares[sellId];
+      if (sq) sellProperty(player, sq);
+    }
+  }
+  
+  checkBankruptcy(player);
+  renderScoreboard();
+  
+  if (extraTurn && !player.bankrupt) {
+    addLog(`🎊 ${player.name} tung lại!`, 'log-start');
+    document.getElementById('btn-roll').disabled = false;
+    if (player.type !== 'human' && player.ai) {
+      document.getElementById('btn-roll').disabled = true;
+      setTimeout(() => rollDice(), 800);
+    }
+  } else {
+    document.getElementById('btn-roll').disabled = false;
+    if (player.type === 'human') {
+      // wait for player to end turn manually or auto
+      // For simplicity auto-proceed after a delay if no modals
+      // Player clicks ROLL to proceed to next turn
+    } else {
+      setTimeout(() => nextTurn(), 300);
+    }
+  }
+}
+
+// ===== BUY MODAL =====
+let _buyContext = null;
+
+function showBuyModal(player, square, extraTurn) {
+  _buyContext = { player, square, extraTurn };
+  document.getElementById('buy-header').textContent = `MUA ${square.name.toUpperCase()}?`;
+  const preview = document.getElementById('buy-preview');
+  preview.style.background = square.color ? BOARD_COLORS[square.color] : '#e0e0e0';
+  preview.textContent = square.type === 'train' ? '🚂' : '🏠';
+  document.getElementById('buy-desc').textContent = `Tiền thuê cơ bản: $${square.rent ? square.rent[0] : 'N/A'}`;
+  document.getElementById('buy-price').textContent = `$${square.price}`;
+  document.getElementById('buy-modal').classList.remove('hidden');
+}
+
+function confirmBuy() {
+  if (!_buyContext) return;
+  const { player, square, extraTurn } = _buyContext;
+  confirmBuySquare(player, square);
+  addLog(`🏠 ${player.name} mua ${square.name} ($${square.price})`, 'log-buy');
+  playSound('buy');
+  spawnCoins();
+  document.getElementById('buy-modal').classList.add('hidden');
+  renderScoreboard();
+  endAction(player, extraTurn);
+  _buyContext = null;
+}
+
+function declineBuy() {
+  if (!_buyContext) return;
+  const { player, extraTurn } = _buyContext;
+  addLog(`❌ ${player.name} từ chối mua`);
+  document.getElementById('buy-modal').classList.add('hidden');
+  endAction(player, extraTurn);
+  _buyContext = null;
+}
+
+function confirmBuySquare(player, square) {
+  player.money -= square.price;
+  square.owner = player.id;
+  square.level = 0;
+  renderScoreboard();
+}
+
+// ===== JAIL =====
+function showJailModal(player) {
+  document.getElementById('jail-desc').textContent = `${player.name} đang ở tù (lượt ${player.jailTurns + 1}/3). Trả 500$ để ra, hoặc ở lại.`;
+  document.getElementById('jail-modal').classList.remove('hidden');
+}
+
+function closeJailModal() {
+  const player = currentPlayer();
+  document.getElementById('jail-modal').classList.add('hidden');
+  player.jailTurns++;
+  if (player.jailTurns >= 3) {
+    player.money -= 500;
+    player.inJail = false;
+    player.jailTurns = 0;
+    addLog(`⛓️ ${player.name} hết thời gian tù, trả 500$`, 'log-jail');
+    G.rolling = false;
+    rollDice();
+  } else {
+    G.rolling = false;
+    nextTurn();
+  }
+}
+
+function payJail() {
+  const player = currentPlayer();
+  if (player.money < 500 && !player.jailCard) { showToast('Không đủ tiền!'); return; }
+  document.getElementById('jail-modal').classList.add('hidden');
+  handleJailDecision(player, player.jailCard ? 'card' : 'pay');
+}
+
+function handleJailDecision(player, decision) {
+  if (decision === 'card') {
+    player.jailCard = false;
+    addLog(`🃏 ${player.name} dùng thẻ thoát tù`, 'log-jail');
+  } else {
+    player.money -= 500;
+    addLog(`💰 ${player.name} trả 500$ để ra tù`, 'log-jail');
+  }
+  player.inJail = false;
+  player.jailTurns = 0;
+  G.rolling = false;
+  rollDice();
+}
+
+// ===== BUILD =====
+function canBuildOn(player, sq) {
+  if (sq.type !== 'prop' || sq.owner !== player.id || sq.level >= 3) return false;
+  // Check if player owns all of the color group
+  const group = G.squares.filter(s => s.type === 'prop' && s.color === sq.color);
+  return group.every(s => s.owner === player.id);
+}
+
+function buildHouse(player, sq) {
+  const cost = Math.floor(sq.price * 0.5);
+  if (player.money < cost) return;
+  player.money -= cost;
+  sq.level++;
+  updateBuildingDisplay(sq.id, sq.level);
+  addLog(`🏗️ ${player.name} xây nhà trên ${sq.name} (Level ${sq.level})`, 'log-build');
+  playSound('build');
+  renderScoreboard();
+}
+
+function showBuild() {
+  const player = currentPlayer();
+  const body = document.getElementById('build-body');
+  const buildable = G.squares.filter(sq => canBuildOn(player, sq));
+  
+  if (buildable.length === 0) {
+    body.innerHTML = '<p style="text-align:center;color:#333">Chưa đủ điều kiện xây nhà.<br>Cần sở hữu cả bộ màu!</p>';
+  } else {
+    body.innerHTML = buildable.map(sq => {
+      const cost = Math.floor(sq.price * 0.5);
+      const levels = ['Trống', 'Nhà nhỏ', 'Nhà lớn', 'Tòa nhà'];
+      const can = player.money >= cost && sq.level < 3;
+      return `<div class="prop-action-item">
+        <div class="prop-action-icon" style="color:${BOARD_COLORS[sq.color]}">🏠</div>
+        <div class="prop-action-info">
+          <div class="prop-action-name">${sq.name}</div>
+          <div class="prop-action-detail">Hiện tại: ${levels[sq.level]} | Chi phí: $${cost}</div>
+        </div>
+        <button class="prop-action-btn" ${can ? '' : 'disabled'} onclick="buildHouseById(${sq.id})">XÂY</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('build-modal').classList.remove('hidden');
+}
+
+function buildHouseById(id) {
+  const player = currentPlayer();
+  const sq = G.squares[id];
+  if (canBuildOn(player, sq)) {
+    buildHouse(player, sq);
+    showBuild(); // refresh
+  }
+}
+
+function closeBuildModal() { document.getElementById('build-modal').classList.add('hidden'); }
+
+// ===== SELL =====
+function sellProperty(player, sq) {
+  const val = Math.floor(sq.price * 0.5) + sq.level * Math.floor(sq.price * 0.25);
+  player.money += val;
+  sq.owner = null;
+  sq.level = 0;
+  updateBuildingDisplay(sq.id, 0);
+  addLog(`💸 ${player.name} bán ${sq.name} (+$${val})`, 'log-rent');
+  renderScoreboard();
+}
+
+function showSell() {
+  const player = currentPlayer();
+  const body = document.getElementById('sell-body');
+  const owned = G.squares.filter(sq => sq.owner === player.id);
+  
+  if (owned.length === 0) {
+    body.innerHTML = '<p style="text-align:center;color:#333">Bạn chưa có tài sản nào!</p>';
+  } else {
+    body.innerHTML = owned.map(sq => {
+      const val = Math.floor(sq.price * 0.5) + sq.level * Math.floor(sq.price * 0.25);
+      return `<div class="prop-action-item">
+        <div class="prop-action-icon" style="color:${BOARD_COLORS[sq.color] || '#999'}">${sq.type === 'train' ? '🚂' : '🏠'}</div>
+        <div class="prop-action-info">
+          <div class="prop-action-name">${sq.name}</div>
+          <div class="prop-action-detail">Bán được: $${val} | Level: ${sq.level}</div>
+        </div>
+        <button class="prop-action-btn sell-btn" onclick="sellById(${sq.id})">BÁN</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('sell-modal').classList.remove('hidden');
+}
+
+function sellById(id) {
+  const player = currentPlayer();
+  const sq = G.squares[id];
+  if (sq.owner === player.id) {
+    sellProperty(player, sq);
+    showSell();
+  }
+}
+
+function closeSellModal() { document.getElementById('sell-modal').classList.add('hidden'); }
+
+// ===== BANK =====
+function showBank() {
+  const player = currentPlayer();
+  const body = document.getElementById('bank-body');
+  const maxLoan = G.params.creditLimit - (player.bankDebt || 0);
+  body.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <p style="font-weight:700;color:#1a0a2e">Số dư: <span style="color:#1b5e20;font-size:1.2rem">$${player.money}</span></p>
+      <p style="font-weight:700;color:#1a0a2e">Nợ hiện tại: <span style="color:#b71c1c">$${player.bankDebt || 0}</span></p>
+      <p style="font-weight:700;color:#1a0a2e">Có thể vay thêm: <span style="color:#1565c0">$${maxLoan}</span></p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${[500, 1000, 2000].map(amt => `
+        <button class="prop-action-btn" style="flex:1;padding:10px" 
+          ${maxLoan < amt ? 'disabled' : ''} onclick="takeLoan(${amt})">
+          Vay $${amt}
+        </button>`).join('')}
+    </div>
+    ${player.bankDebt > 0 ? `
+    <div style="margin-top:12px;display:flex;gap:8px">
+      ${[500, player.bankDebt].map(amt => amt > 0 && player.money >= amt ? `
+        <button class="prop-action-btn sell-btn" style="flex:1;padding:10px" onclick="repayLoan(${amt})">
+          Trả $${Math.min(amt, player.bankDebt)}
+        </button>` : '').join('')}
+    </div>` : ''}
+  `;
+  document.getElementById('bank-modal').classList.remove('hidden');
+}
+
+function takeLoan(amount) {
+  const player = currentPlayer();
+  const maxLoan = G.params.creditLimit - (player.bankDebt || 0);
+  if (amount > maxLoan) { showToast('Vượt hạn mức tín dụng!'); return; }
+  player.money += amount;
+  player.bankDebt = (player.bankDebt || 0) + amount;
+  addLog(`🏦 ${player.name} vay ngân hàng $${amount}`, 'log-buy');
+  renderScoreboard();
+  showBank();
+}
+
+function repayLoan(amount) {
+  const player = currentPlayer();
+  const repay = Math.min(amount, player.bankDebt || 0);
+  if (player.money < repay) { showToast('Không đủ tiền!'); return; }
+  player.money -= repay;
+  player.bankDebt = (player.bankDebt || 0) - repay;
+  addLog(`🏦 ${player.name} trả nợ ngân hàng $${repay}`, 'log-rent');
+  renderScoreboard();
+  showBank();
+}
+
+function closeBankModal() { document.getElementById('bank-modal').classList.add('hidden'); }
+
+// ===== DEAL (simplified) =====
+function showDeal() {
+  showToast('Tính năng trao đổi đang phát triển!');
+}
+
+// ===== BANKRUPTCY =====
+function checkBankruptcy(player) {
+  if (player.bankrupt) return;
+  const debt = (player.bankDebt || 0);
+  if (player.money + G.params.creditLimit - debt < 0) {
+    declareBankruptcy(player);
+  }
+}
+
+function declareBankruptcy(player) {
+  player.bankrupt = true;
+  // Release all properties
+  G.squares.forEach(sq => {
+    if (sq.owner === player.id) {
+      sq.owner = null;
+      sq.level = 0;
+      updateBuildingDisplay(sq.id, 0);
+    }
+  });
+  addLog(`💀 ${player.name} phá sản!`, 'log-jail');
+  showToast(`${player.name} phá sản!`);
+  renderScoreboard();
+  checkWinner();
+}
+
+// ===== WINNER =====
+function checkWinner() {
+  const alive = G.players.filter(p => !p.bankrupt);
+  if (alive.length === 1) {
+    const winner = alive[0];
+    showWinner(winner);
+    return true;
+  }
+  return false;
+}
+
+function showWinner(player) {
+  document.getElementById('winner-name').textContent = `${player.emoji} ${player.name}`;
+  document.getElementById('winner-money').textContent = `Tổng tài sản: $${player.money}`;
+  
+  // Fireworks
+  const fw = document.getElementById('fireworks');
+  fw.innerHTML = '';
+  ['🎆','🎇','✨','🎊','🎉'].forEach((e, i) => {
+    const f = document.createElement('div');
+    f.className = 'fw';
+    f.textContent = e;
+    f.style.left = (15 + i * 18) + '%';
+    f.style.animationDelay = (i * 0.3) + 's';
+    f.style.animationDuration = (1.5 + Math.random()) + 's';
+    fw.appendChild(f);
+  });
+  
+  document.getElementById('winner-overlay').classList.remove('hidden');
+  playSound('win');
+}
+
+// ===== TOKEN RENDERING =====
+function renderTokens() {
+  const container = document.getElementById('players-tokens');
+  container.innerHTML = '';
+  G.players.forEach(p => {
+    const tok = document.createElement('div');
+    tok.className = 'player-token';
+    tok.id = `token-${p.id}`;
+    tok.textContent = p.emoji;
+    tok.style.background = p.color;
+    container.appendChild(tok);
+    updateTokenPosition(p);
+  });
+}
+
+function updateTokenPosition(player) {
+  const tok = document.getElementById(`token-${player.id}`);
+  if (!tok) return;
+  
+  const board = document.getElementById('board');
+  const size = board.offsetWidth;
+  const pos = getCellPosition(player.position, size);
+  const tokSize = parseInt(tok.style.width) || tok.offsetWidth || 24;
+  
+  // Offset multiple tokens on same cell
+  const sameCell = G.players.filter(p => p.position === player.position && !p.bankrupt);
+  const myIdx = sameCell.findIndex(p => p.id === player.id);
+  const offset = myIdx * (tokSize * 0.6);
+  
+  tok.style.left = (pos.left + pos.width / 2 - tokSize / 2 + offset) + 'px';
+  tok.style.top = (pos.top + pos.height / 2 - tokSize / 2) + 'px';
+  
+  // Active highlight
+  tok.classList.toggle('active', player.id === G.currentPlayer);
+}
+
+// ===== SCOREBOARD =====
+function renderScoreboard() {
+  if (!G) return;
+  const sb = document.getElementById('score-board');
+  sb.innerHTML = G.players.map(p => {
+    const props = G.squares.filter(s => s.owner === p.id).length;
+    return `<div class="score-item ${p.id === G.currentPlayer ? 'active-player' : ''} ${p.bankrupt ? 'bankrupt' : ''}">
+      <div class="score-avatar" style="background:${p.color}">${p.emoji}</div>
+      <div class="score-info">
+        <div class="score-name">${p.name}</div>
+        <div class="score-money">$${p.money.toLocaleString()}</div>
+        ${p.inJail ? '<div class="score-jail">⛓️ Tù</div>' : ''}
+        ${props > 0 ? `<div class="score-jail">🏠 ${props} tài sản</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  
+  // Update tokens
+  if (document.getElementById('players-tokens').children.length > 0) {
+    G.players.forEach(p => updateTokenPosition(p));
+  }
+}
+
+// ===== HISTORY LOG =====
+function addLog(text, cls = '') {
+  if (!G) return;
+  G.log.unshift({ text, cls });
+  if (G.log.length > 50) G.log.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const log = document.getElementById('history-log');
+  if (!log || !G) return;
+  log.innerHTML = G.log.slice(0, 20).map(e =>
+    `<div class="log-entry ${e.cls}">${e.text}</div>`
+  ).join('');
+}
+
+// ===== PAUSE =====
+function showPause() {
+  document.getElementById('pause-overlay').classList.remove('hidden');
+}
+function hidePause() {
+  document.getElementById('pause-overlay').classList.add('hidden');
+}
+
+function saveAndExit() {
+  // Save to localStorage
+  try {
+    localStorage.setItem('monopoly_save', JSON.stringify({
+      players: G.players.map(p => ({ ...p, ai: null })),
+      squares: G.squares,
+      params: G.params,
+      diceCount: G.diceCount,
+      currentPlayer: G.currentPlayer,
+      log: G.log.slice(0, 20),
+      turnCount: G.turnCount,
+    }));
+  } catch(e) {}
+  showToast('Đã lưu game!');
+  setTimeout(() => {
+    hidePause();
+    G = null;
+    showScreen('menu');
+  }, 800);
+}
+
+// ===== EFFECTS =====
+function spawnCoins() {
+  const container = document.getElementById('coins-anim');
+  if (!container) return;
+  for (let i = 0; i < 8; i++) {
+    const coin = document.createElement('div');
+    coin.className = 'coin-fly';
+    coin.textContent = '🪙';
+    coin.style.left = '50%';
+    coin.style.top = '50%';
+    coin.style.setProperty('--tx', (Math.random() * 120 - 60) + 'px');
+    coin.style.setProperty('--ty', (Math.random() * 120 - 60) + 'px');
+    coin.style.animationDelay = (Math.random() * 0.3) + 's';
+    container.appendChild(coin);
+    setTimeout(() => coin.remove(), 2000);
+  }
+}
+
+// ===== SOUND =====
+let soundEnabled = true;
+let musicEnabled = true;
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const sounds = {
+      dice: () => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.setValueAtTime(300, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+        g.gain.setValueAtTime(0.3, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        o.start(); o.stop(ctx.currentTime + 0.3);
+      },
+      buy: () => {
+        [523, 659, 784].forEach((freq, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.connect(g); g.connect(ctx.destination);
+          o.frequency.value = freq;
+          g.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.1);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.2);
+          o.start(ctx.currentTime + i * 0.1);
+          o.stop(ctx.currentTime + i * 0.1 + 0.2);
+        });
+      },
+      rent: () => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sawtooth';
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.setValueAtTime(200, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.4);
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        o.start(); o.stop(ctx.currentTime + 0.4);
+      },
+      chance: () => {
+        [400, 500, 600, 700].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.connect(g); g.connect(ctx.destination);
+          o.frequency.value = f;
+          g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.08);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.1);
+          o.start(ctx.currentTime + i * 0.08);
+          o.stop(ctx.currentTime + i * 0.08 + 0.15);
+        });
+      },
+      build: () => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'square';
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.setValueAtTime(220, ctx.currentTime);
+        o.frequency.setValueAtTime(330, ctx.currentTime + 0.1);
+        o.frequency.setValueAtTime(440, ctx.currentTime + 0.2);
+        g.gain.setValueAtTime(0.15, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        o.start(); o.stop(ctx.currentTime + 0.4);
+      },
+      win: () => {
+        [523, 659, 784, 1047].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.connect(g); g.connect(ctx.destination);
+          o.frequency.value = f;
+          g.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+          o.start(ctx.currentTime + i * 0.15);
+          o.stop(ctx.currentTime + i * 0.15 + 0.5);
+        });
+      },
+    };
+    if (sounds[type]) sounds[type]();
+  } catch(e) {}
+}
+
+function toggleSound() { soundEnabled = document.getElementById('s-sound').checked; }
+function toggleMusic() { musicEnabled = document.getElementById('s-music').checked; }
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ===== INIT =====
+window.onload = () => {
+  showScreen('menu');
+  spawnMenuCoins();
+  
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    if (G && document.getElementById('screen-game').classList.contains('active')) {
+      const board = document.getElementById('board');
+      const size = board.offsetWidth;
+      renderBoard(document.getElementById('board-cells'), size);
+      renderTokens();
+    }
+  });
+};
+
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    
+  }
+</script>
+</body>
+</html>
